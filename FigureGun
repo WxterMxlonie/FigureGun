@@ -1,0 +1,53 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+local tool:Tool = game:GetObjects("rbxassetid://128005884709442")[1]
+tool.Name = "FigureGun"
+tool.RequiresHandle = false 
+tool.Parent = player.Backpack
+tool.TextureId = "rbxassetid://80165647264065"
+
+local sound = Instance.new("Sound")
+sound.Parent = tool.Handle 
+sound.SoundId = "rbxassetid://344167846"
+sound.Volume = 1
+
+local distance = 25
+local mouse = player:GetMouse()
+
+tool.Activated:Connect(function()
+    local primaryPart = character.PrimaryPart
+    
+    if not primaryPart then
+        return
+    end
+
+    local origin = primaryPart.Position
+    local direction = (mouse.Hit.Position - origin).Unit * distance
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterDescendantsInstances = {character} 
+    raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+
+    local raycast = workspace:Raycast(origin, direction, raycastParams)
+
+    if raycast then
+        local hitInstance = raycast.Instance
+        
+        sound:Play()
+        
+        if hitInstance and hitInstance:IsA("BasePart") then
+            hitInstance.Color = Color3.fromRGB(98, 56, 58)
+            hitInstance.Material = Enum.Material.Mud
+        end
+        
+        if hitInstance.Parent and hitInstance.Parent:IsA("Model") then
+            for _, basePart in hitInstance.Parent:GetChildren() do
+                if basePart:IsA("BasePart") then
+                    basePart.Color = Color3.fromRGB(98, 56, 58)
+                    basePart.Material = Enum.Material.Mud
+                end
+            end
+        end
+    end
+end)
